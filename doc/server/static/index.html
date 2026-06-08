@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>聊天室</title>
+</head>
+<body>
+<h2>聊天室</h2>
+<div id="messages" style="height:300px; overflow:auto; border:1px solid #ccc; padding:10px;"></div>
+<input id="input" type="text" placeholder="请输入消息" style="width:80%">
+<button id="send">发送</button>
+<br>
+<button id="getOnline">刷新在线人数</button>
+<span id="onlineCount"></span>
+<script>
+    let ws = new WebSocket("ws://localhost:8080/ws");
+    ws.onmessage = function (event) {
+        let div = document.getElementById("messages");
+        div.innerHTML += "<div>" + event.data + "</div>";
+        div.scrollTop = div.scrollHeight;
+    };
+
+    document.getElementById("send").onclick = function () {
+        let input = document.getElementById("input");
+        ws.send(input.value);
+        input.value = "";
+    };
+
+    document.getElementById("getOnline").onclick = function () {
+        fetch("/getOnline")
+            .then(res => {
+                if (!res.ok) throw new Error("HTTP " + res.status);
+                return res.json()
+            })
+            .then(data => {
+                document.getElementById("onlineCount").innerText = data.onling
+            })
+            .catch(err => {
+                console.error("获取在线人数失败:", err);
+                document.getElementById("onlineCount").innerText = "错误";
+            });
+    };
+</script>
+</body>
+</html>
