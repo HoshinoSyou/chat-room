@@ -1,0 +1,20 @@
+server:
+  port:
+
+mysql:
+  host:
+  port:
+  username:
+  password:
+  database:
+  charset:
+
+redis:
+  host:
+  port:
+  password:
+  db:
+
+jwt:
+  secret_key:
+  expired:
