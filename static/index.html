@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>私聊IM</title>
+</head>
+<body>
+<h2>WebSocket 私聊 Demo</h2>
+<div>
+    <label>Token: <input id="token" style="width:300px"></label>
+    <button id="connect">连接</button>
+</div>
+<div>
+    <label>目标用户: <input id="target" placeholder="username"></label>
+    <label>消息: <input id="content" placeholder="content"></label>
+    <button id="send">发送</button>
+</div>
+<div id="messages" style="height:300px; overflow:auto; border:1px solid #ccc; margin-top:10px"></div>
+
+<script>
+    let ws = null;
+    const loginBtn = document.getElementById('connect');
+    const sendBtn = document.getElementById('send');
+    const tokenInput = document.getElementById('token');
+    const targetInput = document.getElementById('target');
+    const contentInput = document.getElementById('content');
+    const msgDiv = document.getElementById('messages');
+
+    function addMessage(text) {
+        msgDiv.innerHTML += '<div>' + text + '</div>';
+        msgDiv.scrollTop = msgDiv.scrollHeight;
+    }
+
+    loginBtn.onclick = () => {
+        const token = tokenInput.value.trim();
+        if (!token) {
+            alert('请输入token');
+            return;
+        }
+        if (ws) {
+            ws.close();
+        }
+        // 通过 URL 参数传递 token
+        ws = new WebSocket(`ws://localhost:8080/ws?token=${token}`);
+        ws.onopen = () => addMessage('【系统】连接成功');
+        ws.onmessage = (e) => {
+            const data = JSON.parse(e.data);
+            if (data.type === 'private_message') {
+                addMessage(`来自 ${data.from_user_id}: ${data.content}`);
+            } else if (data.status === 'ok') {
+                console.log(data);
+                addMessage(`【系统】消息已发送，ID: ${data.message_id}`);
+            } else if (data.error) {
+                addMessage(`【错误】${data.error}`);
+            }
+        };
+        ws.onclose = () => addMessage('【系统】连接关闭');
+        ws.onerror = (err) => addMessage('【系统】连接错误');
+    };
+
+    sendBtn.onclick = () => {
+        if (!ws || ws.readyState !== WebSocket.OPEN) {
+            alert('未连接或连接已关闭');
+            return;
+        }
+        const to = targetInput.value.trim();
+        const content = contentInput.value.trim();
+        if (!to || !content) {
+            alert('请填写目标用户和内容');
+            return;
+        }
+        ws.send(JSON.stringify({targetUsername: to, content: content}));
+        contentInput.value = '';
+    };
+</script>
+</body>
+</html>

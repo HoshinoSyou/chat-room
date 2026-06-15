@@ -3,7 +3,6 @@ package middleware
 import (
 	"chat-room/util/jwt"
 	"chat-room/util/response"
-	"encoding/base64"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -13,23 +12,9 @@ import (
 func CheckToken() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token := ctx.Request.Header.Get("Authorization")
-		tokenSplit := strings.Split(token, ".")
-		if len(tokenSplit) != 3 {
-			err := errors.New("token 格式错误")
-			log.Println(err)
-			response.Error(ctx, "验证用户信息失败！", err)
-			ctx.Abort()
-			return
-		}
-		header, err := base64.StdEncoding.DecodeString(tokenSplit[0])
-		if err != nil {
-			log.Printf("token header 解析错误！错误信息：%v", err)
-			response.Error(ctx, "验证用户信息失败！", err)
-			ctx.Abort()
-			return
-		}
-		headerSplit := strings.Split(string(header), " ")
-		if !strings.EqualFold(headerSplit[0], "Bear ") {
+
+		tokenSplit := strings.Split(token, " ")
+		if !strings.EqualFold(tokenSplit[0], "Bearer") {
 			err := errors.New("token header 格式错误！")
 			log.Println(err)
 			response.Error(ctx, "验证用户信息失败！", err)
@@ -37,7 +22,7 @@ func CheckToken() gin.HandlerFunc {
 			return
 		}
 
-		payload, err := jwt.TokenParse(headerSplit[0] + tokenSplit[1] + tokenSplit[2])
+		payload, err := jwt.TokenParse(tokenSplit[1])
 		if err != nil {
 			response.Error(ctx, "验证用户信息失败！", err)
 			ctx.Abort()
@@ -54,5 +39,44 @@ func CheckToken() gin.HandlerFunc {
 		//	ctx.Abort()
 		//	return
 		//}
+	}
+}
+
+func WSCheckToken() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		token := ctx.Query("token")
+		//tokenSplit := strings.Split(token, ".")
+		//if len(tokenSplit) != 3 {
+		//	err := errors.New("token 格式错误")
+		//	log.Println(err)
+		//	response.Error(ctx, "验证用户信息失败！", err)
+		//	ctx.Abort()
+		//	return
+		//}
+		log.Println(token)
+		tokenSplit := strings.Split(token, " ")
+		if !strings.EqualFold(tokenSplit[0], "Bearer") {
+			err := errors.New("token header 格式错误！")
+			log.Println(err)
+			response.Error(ctx, "验证用户信息失败！", err)
+			ctx.Abort()
+			return
+		}
+		//_, err := base64.StdEncoding.DecodeString(tokenSplit[1])
+		//if err != nil {
+		//	log.Printf("token header 解析错误！错误信息：%v", err)
+		//	response.Error(ctx, "验证用户信息失败！", err)
+		//	ctx.Abort()
+		//	return
+		//}
+		payload, err := jwt.TokenParse(tokenSplit[1])
+		if err != nil {
+			response.Error(ctx, "验证用户信息失败！", err)
+			ctx.Abort()
+			return
+		}
+		ctx.Set("uid", payload.Uid)
+		ctx.Set("username", payload.Username)
+		ctx.Next()
 	}
 }

@@ -22,6 +22,7 @@ type Payload struct {
 }
 
 func TokenParse(token string) (*Payload, error) {
+	log.Println(token)
 	tokenClaims := config.AppConfig.Jwt
 	claims, err := jwt.ParseWithClaims(token, &Payload{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(tokenClaims.SecretKey), nil

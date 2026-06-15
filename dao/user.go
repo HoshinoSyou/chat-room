@@ -7,7 +7,7 @@ import (
 func CreateUser(user *models.User) error {
 	DB.AutoMigrate(&models.User{})
 
-	err := DB.Table("users").Create(&user).Error
+	err := DB.Model("users").Create(&user).Error
 	//if err != nil {
 	//	log.Printf("mysql 数据库新增数据失败！错误信息：%v", err)
 	//	return err
@@ -16,7 +16,7 @@ func CreateUser(user *models.User) error {
 }
 
 func SelectUserById(id uint) (user models.User) {
-	DB.Model(&models.User{}).Where("id", id).First(&user)
+	DB.Model(&user).Where("id", id).First(&user)
 	//if user.ID <= 0 {
 	//	err := errors.New("未查找到 ID！")
 	//	log.Printf("mysql 数据库查找数据失败！错误信息：%v", err)
@@ -26,7 +26,7 @@ func SelectUserById(id uint) (user models.User) {
 }
 
 func SelectUserByUsername(username string) (user models.User) {
-	DB.Model(&models.User{}).Where("username", username).First(&user)
+	DB.Model(&user).Where("username = ?", username).First(&user)
 	//if u.ID != 0 {
 	//	err := errors.New("用户名已存在！")
 	//	log.Printf("新增用户名失败！错误原因：%v", err)
@@ -36,7 +36,7 @@ func SelectUserByUsername(username string) (user models.User) {
 }
 
 func UpdateUser(user *models.User) error {
-	err := DB.Model(&models.User{}).Updates(&user).Error
+	err := DB.Model(&user).Updates(&user).Error
 	//if err != nil {
 	//	log.Printf("mysql 数据库更新数据失败！错误信息：%v", err)
 	//	return err
@@ -45,7 +45,7 @@ func UpdateUser(user *models.User) error {
 }
 
 func DeleteUser(user *models.User) error {
-	err := DB.Model(&models.User{}).Delete(&user).Error
+	err := DB.Model(&user).Delete(&user).Error
 	//if err != nil {
 	//	log.Printf("mysql 数据库删除数据失败！错误信息：%v", err)
 	//	return err
