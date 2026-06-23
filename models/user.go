@@ -9,3 +9,10 @@ type User struct {
 	Nickname string `form:"nickname" gorm:"size:50" json:"nickname"`
 	Avatar   string `form:"avatar" gorm:"size:256" json:"avatar"`
 }
+
+type UserInformation struct {
+	Id       uint   `json:"id" gorm:"column:id"`
+	Username string `json:"username" gorm:"column:username"`
+	Avatar   string `json:"avatar" gorm:"column:avatar"`
+	//nickname string `json:"nickname"`
+}

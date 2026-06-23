@@ -25,6 +25,7 @@ func Entrance() {
 	{
 		chat.GET("/messages/:user_id", controller.SelectMessage)
 		chat.POST("/messages", controller.CreateMessage)
+		chat.GET("/conversations", controller.SelectConversations)
 	}
 	// 升级为 ws 路由
 	router.GET("/ws", middleware.WSCheckToken(), controller.InitWebsocket)

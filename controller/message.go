@@ -61,3 +61,19 @@ func SelectMessage(ctx *gin.Context) {
 	}
 	response.OkWithData(ctx, "获取聊天记录成功！", messages)
 }
+
+func SelectConversations(ctx *gin.Context) {
+	userid, exists := ctx.Get("uid")
+	if !exists {
+		err := errors.New("验证用户登录状态信息失败！")
+		log.Println(err)
+		response.Error(ctx, "验证用户登录状态信息失败！", err)
+		return
+	}
+	res, conversations, err := service.SelectConversations(userid.(uint))
+	if !res {
+		response.Error(ctx, "获取会话列表失败！", err)
+		return
+	}
+	response.OkWithData(ctx, "获取会话列表成功！", conversations)
+}

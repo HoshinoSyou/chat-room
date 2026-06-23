@@ -46,7 +46,9 @@
             const data = JSON.parse(e.data);
             if (data.type === 'private_message') {
                 addMessage(`来自 ${data.from_user_id}: ${data.content}`);
-            } else if (data.status === 'ok') {
+            }else if (data.type === 'offline_message'){
+                addMessage(`【离线消息】来自 ${data.from_user_id}: ${data.content}`)
+            }else if (data.status === 'ok') {
                 console.log(data);
                 addMessage(`【系统】消息已发送，ID: ${data.message_id}`);
             } else if (data.error) {

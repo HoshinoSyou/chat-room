@@ -25,6 +25,11 @@ func SelectUserById(id uint) (user models.User) {
 	return
 }
 
+func SelectUsersById(ids []uint) (users []models.UserInformation) {
+	DB.Model(&models.User{}).Select("id,username,avatar").Where("id IN ?", ids).Find(&users)
+	return
+}
+
 func SelectUserByUsername(username string) (user models.User) {
 	DB.Model(&user).Where("username = ?", username).First(&user)
 	//if u.ID != 0 {

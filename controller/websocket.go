@@ -78,6 +78,22 @@ func InitWebsocket(ctx *gin.Context) {
 		}
 	}()
 
+	res, messages, _ := service.SelectOfflineMessage(ctx.Request.Context(), uid)
+	log.Println(res, messages)
+	if res && len(messages) != 0 {
+		log.Println("111111111111111111111111111111111111111111111111111111")
+		for _, msg := range messages {
+			log.Println("print message")
+			conn.WriteJSON(gin.H{
+				"type":         "offline_message",
+				"message_id":   msg.ID,
+				"time":         msg.CreatedAt,
+				"from_user_id": msg.FromUserId,
+				"content":      msg.Content,
+			})
+		}
+	}
+
 	for {
 		//msg := models.Message{
 		//	Model:      gorm.Model{},
@@ -114,7 +130,10 @@ func InitWebsocket(ctx *gin.Context) {
 				log.Printf("将用户 %d 的消息推送至用户 %d 失败！错误信息：%v", uid, msg.ToUserId, err)
 			}
 		} else {
-			log.Printf("将用户 %d 发送给用户 %d 的消息保存成功！", uid, msg.ToUserId)
+			res, _ := service.CreateOfflineMessage(ctx.Request.Context(), msg)
+			if res {
+				log.Printf("将用户 %d 发送给用户 %d 的消息离线保存成功！", uid, msg.ToUserId)
+			}
 		}
 		conn.WriteJSON(gin.H{
 			"status":     "ok",
